@@ -4,21 +4,85 @@
     "types": [],
     "structs": [
         {
-            "name": "appoint",
-            "base": "",
-            "fields": [
-                {
-                    "name": "user",
-                    "type": "name"
-                }
-            ]
-        },
-        {
             "name": "approve",
             "base": "",
             "fields": [
                 {
                     "name": "key",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "blame",
+            "base": "",
+            "fields": [
+                {
+                    "name": "blamer",
+                    "type": "name"
+                },
+                {
+                    "name": "blamed",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                },
+                {
+                    "name": "freeze",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "blaming",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "blamer",
+                    "type": "name"
+                },
+                {
+                    "name": "blamed",
+                    "type": "name"
+                },
+                {
+                    "name": "reason",
+                    "type": "string"
+                },
+                {
+                    "name": "freeze",
+                    "type": "bool"
+                },
+                {
+                    "name": "voteable",
+                    "type": "bool"
+                },
+                {
+                    "name": "confirmations",
+                    "type": "uint64"
+                },
+                {
+                    "name": "votes",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "buy",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "itemKey",
                     "type": "uint64"
                 }
             ]
@@ -85,6 +149,42 @@
             ]
         },
         {
+            "name": "order",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "received",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
+            "name": "received",
+            "base": "",
+            "fields": [
+                {
+                    "name": "buyer",
+                    "type": "name"
+                },
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "report",
             "base": "",
             "fields": [
@@ -107,6 +207,24 @@
             ]
         },
         {
+            "name": "transfer",
+            "base": "",
+            "fields": [
+                {
+                    "name": "from",
+                    "type": "name"
+                },
+                {
+                    "name": "to",
+                    "type": "name"
+                },
+                {
+                    "name": "amount",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
             "name": "user",
             "base": "",
             "fields": [
@@ -124,6 +242,10 @@
                 },
                 {
                     "name": "statusV",
+                    "type": "uint64"
+                },
+                {
+                    "name": "blames",
                     "type": "uint64"
                 },
                 {
@@ -155,6 +277,24 @@
             ]
         },
         {
+            "name": "voteb",
+            "base": "",
+            "fields": [
+                {
+                    "name": "blameKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "voter",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "bool"
+                }
+            ]
+        },
+        {
             "name": "voting",
             "base": "",
             "fields": [
@@ -175,17 +315,44 @@
                     "type": "uint64"
                 }
             ]
+        },
+        {
+            "name": "votingb",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "blameKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "voter",
+                    "type": "name"
+                },
+                {
+                    "name": "value",
+                    "type": "bool"
+                }
+            ]
         }
     ],
     "actions": [
         {
-            "name": "appoint",
-            "type": "appoint",
+            "name": "approve",
+            "type": "approve",
             "ricardian_contract": ""
         },
         {
-            "name": "approve",
-            "type": "approve",
+            "name": "blame",
+            "type": "blame",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "buy",
+            "type": "buy",
             "ricardian_contract": ""
         },
         {
@@ -199,20 +366,49 @@
             "ricardian_contract": ""
         },
         {
+            "name": "received",
+            "type": "received",
+            "ricardian_contract": ""
+        },
+        {
             "name": "report",
             "type": "report",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer",
+            "type": "transfer",
             "ricardian_contract": ""
         },
         {
             "name": "vote",
             "type": "vote",
             "ricardian_contract": ""
+        },
+        {
+            "name": "voteb",
+            "type": "voteb",
+            "ricardian_contract": ""
         }
     ],
     "tables": [
         {
+            "name": "blaming",
+            "type": "blaming",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
             "name": "item",
             "type": "item",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "order",
+            "type": "order",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
@@ -227,6 +423,13 @@
         {
             "name": "voting",
             "type": "voting",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
+        {
+            "name": "votingb",
+            "type": "votingb",
             "index_type": "i64",
             "key_names": [],
             "key_types": []
