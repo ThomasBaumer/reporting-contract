@@ -1,5 +1,4 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/print.hpp>
+#include <eosio/eosio.hpp>
 
 using namespace eosio;
 
@@ -17,11 +16,12 @@ CONTRACT reporting : public contract {
     ACTION blame(name blamer, name blamed, std::string reason, bool freeze);
     ACTION voteb(uint64_t blameKey, name voter, bool value);
     ACTION buy(name buyer, uint64_t itemKey);
-    ACTION received(name buyer, uint64_t itemKey);
+    ACTION received(name buyer, uint64_t orderKey, bool done);
   
   private:
   
     void appoint(name user);
+    void blameintern(name blamer, name blamed, std::string reason, bool freeze);
 	  
 	  bool initialized = false;
 	  

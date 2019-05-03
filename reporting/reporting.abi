@@ -179,8 +179,12 @@
                     "type": "name"
                 },
                 {
-                    "name": "itemKey",
+                    "name": "orderKey",
                     "type": "uint64"
+                },
+                {
+                    "name": "done",
+                    "type": "bool"
                 }
             ]
         },
