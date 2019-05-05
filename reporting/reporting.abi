@@ -120,7 +120,7 @@
                 },
                 {
                     "name": "hash",
-                    "type": "string"
+                    "type": "checksum256"
                 },
                 {
                     "name": "incident",
@@ -197,7 +197,7 @@
                     "type": "name"
                 },
                 {
-                    "name": "hash",
+                    "name": "data",
                     "type": "string"
                 },
                 {

@@ -31,19 +31,6 @@ ACTION reporting::init() {
 		  row.verificator = 0; 
 		  row.frozen = 0; 
 		});
-		item_t item( _self, _self.value );
-		item.emplace(_self, [&]( auto& row ) { 
-		  row.key = 0;  
-		  row.parentLink = 0;  
-		  row.reporter = _self;  
-		  row.hash = "The Russians.";  
-		  row.incident = 1; 
-		  row.voteable = 0;  
-		  row.approval = 0;  
-		  row.confirmations = 0;  
-		  row.votes = 0;  
-		  row.rating = 0; 
-		});
 		initialized = true;
 }
 
@@ -85,13 +72,18 @@ void reporting::appoint(name user) {
 
 
 
-ACTION reporting::report(name reporter, std::string hash, uint64_t parentLink, bool isIncident) {
+ACTION reporting::report(name reporter, std::string data, uint64_t parentLink, bool isIncident) {
 	require_auth( reporter );
 	user_t users( _self, _self.value );
 	auto it_reporter = users.find(reporter.value);
 	check( !(it_reporter == users.end()), "No such user on the blockchain.");
 	check( !(it_reporter->frozen), "This user is frozen.");
 	
+	char cdata[data.size() + 1];
+	std::copy(data.begin(), data.end(), cdata);
+	cdata[data.size()] = '\0';
+	checksum256 hash = eosio::sha256(cdata, data.size());
+
 	item_t item( _self, _self.value );
 	for(auto& row : item) { 
 	  check( !(row.hash == hash), "That item was already uploaded." ); 
@@ -100,7 +92,8 @@ ACTION reporting::report(name reporter, std::string hash, uint64_t parentLink, b
 	  row.key = item.available_primary_key(); 
 	  row.parentLink = parentLink; 
 	  row.reporter = reporter; 
-	  row.hash = hash; row.incident = isIncident; 
+	  row.hash = hash; 
+	  row.incident = isIncident; 
 	  row.voteable = 1;  
 	  row.approval = 0;  
 	  row.confirmations = 0;  

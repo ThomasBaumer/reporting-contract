@@ -1,4 +1,5 @@
 #include <eosio/eosio.hpp>
+#include <eosio/crypto.hpp>
 
 using namespace eosio;
 
@@ -9,7 +10,7 @@ CONTRACT reporting : public contract {
   
     ACTION init();
     ACTION enrol(name user);
-    ACTION report(name reporter, std::string hash, uint64_t parentLink, bool isIncident);
+    ACTION report(name reporter, std::string data, uint64_t parentLink, bool isIncident);
     ACTION approve(uint64_t key);
     ACTION vote(uint64_t itemKey, name voter, uint64_t merit);
     ACTION transfer(name from, name to, uint64_t amount);
@@ -40,7 +41,7 @@ CONTRACT reporting : public contract {
   		uint64_t      blames;
   		bool 			    verificator;
   		bool			    frozen;
-  		uint64_t primary_key() const { return user.value; }
+  		uint64_t      primary_key() const { return user.value; }
     };
     typedef eosio::multi_index<"users"_n, user> user_t;
     
@@ -48,23 +49,25 @@ CONTRACT reporting : public contract {
   		uint64_t		  key;
   		uint64_t		  parentLink;
   		name			    reporter;
-  		std::string		hash;
+      checksum256   hash;
   		bool			    incident;
   		bool			    voteable;
   		bool 			    approval;
   		uint64_t 		  confirmations;
   		uint64_t 		  votes;
   		uint64_t		  rating;
-  		uint64_t primary_key() const { return key; }
+  		uint64_t      primary_key() const { return key; }
+  		checksum256   by_hash() const { return hash; }
 	  };
-	  typedef eosio::multi_index<"item"_n, item> item_t;
+	  typedef eosio::multi_index<"item"_n, item, eosio::indexed_by<"hash"_n, eosio::const_mem_fun<item, checksum256, &item::by_hash>>> item_t;
+	  //typedef eosio::multi_index<"item"_n, item> item_t;
 	  
 	  TABLE voting {
   		uint64_t 		  key;
   		uint64_t		  itemKey;
   		name			    voter;
   		uint64_t		  value;
-		  uint64_t primary_key() const { return key; }
+		  uint64_t      primary_key() const { return key; }
 	  };
 	  typedef eosio::multi_index<"voting"_n, voting> voting_t;
 
@@ -77,7 +80,7 @@ CONTRACT reporting : public contract {
   		bool			    voteable;
   		uint64_t 		  confirmations;
   		uint64_t 		  votes;
-  		uint64_t primary_key() const { return key; }
+  		uint64_t      primary_key() const { return key; }
   	};
   	typedef eosio::multi_index<"blaming"_n, blaming> blaming_t;
   	
@@ -86,7 +89,7 @@ CONTRACT reporting : public contract {
   		uint64_t		  blameKey;
   		name			    voter;
   		bool		      value;
-  		uint64_t primary_key() const { return key; }
+  		uint64_t      primary_key() const { return key; }
   	};
   	typedef eosio::multi_index<"votingb"_n, votingb> votingb_t;
   	
@@ -95,7 +98,7 @@ CONTRACT reporting : public contract {
   		uint64_t	    itemKey;
   		name			    buyer;
   		bool			    received;
-  		uint64_t primary_key() const { return key; }
+  		uint64_t      primary_key() const { return key; }
   	};
   	typedef eosio::multi_index<"order"_n, order> order_t;
 };
