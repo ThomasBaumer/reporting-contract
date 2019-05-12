@@ -210,7 +210,8 @@ ACTION reporting::buy( name buyer, uint64_t itemKey ) {
 	}
 	order.emplace(_self, [&]( auto& row ) { 
 	  row.key = order.available_primary_key();  
-	  row.itemKey = itemKey; 
+	  row.itemKey = itemKey;
+	  row.seller = seller;
 	  row.buyer = buyer; 
 	  row.received = 0; 
 	});
@@ -235,10 +236,8 @@ ACTION reporting::received( name buyer, uint64_t orderKey, bool done ) {
 	  }); 
 	}
 	else { 
-	  item_t item( _self, _self.value );
-	  auto it_item = item.find(it_order->itemKey);
 	  std::string reason = "Order " + std::to_string(orderKey) + " not received.";
-	  reporting::blameintern(buyer, it_item->reporter, reason, 1);
+	  reporting::blameintern(buyer, it_order->seller, reason, 1);
 	}
 }
 

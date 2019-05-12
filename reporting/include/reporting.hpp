@@ -96,6 +96,7 @@ CONTRACT reporting : public contract {
   	TABLE order {
   		uint64_t 	    key;
   		uint64_t	    itemKey;
+  		name          seller;
   		name			    buyer;
   		bool			    received;
   		uint64_t      primary_key() const { return key; }

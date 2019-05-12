@@ -161,6 +161,10 @@
                     "type": "uint64"
                 },
                 {
+                    "name": "seller",
+                    "type": "name"
+                },
+                {
                     "name": "buyer",
                     "type": "name"
                 },
