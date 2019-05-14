@@ -9,7 +9,8 @@ CONTRACT reporting : public contract {
     reporting(eosio::name receiver, eosio::name code, datastream<const char*> ds):contract(receiver, code, ds) {}
   
     ACTION init();
-    ACTION enrol(name user);
+    ACTION enrol(name user, std::string publicKey);
+    ACTION updatepk(name user, std::string publicKey);
     ACTION report(name reporter, std::string data, uint64_t parentLink, bool isIncident);
     ACTION approve(uint64_t key);
     ACTION vote(uint64_t itemKey, name voter, uint64_t merit);
@@ -41,6 +42,7 @@ CONTRACT reporting : public contract {
   		uint64_t      blames;
   		bool 			    verificator;
   		bool			    frozen;
+  		std::string   publicKey;
   		uint64_t      primary_key() const { return user.value; }
     };
     typedef eosio::multi_index<"users"_n, user> user_t;
@@ -104,4 +106,4 @@ CONTRACT reporting : public contract {
   	typedef eosio::multi_index<"order"_n, order> order_t;
 };
 
-EOSIO_DISPATCH(reporting, (init) (enrol) (report)(approve)(vote) (transfer)(buy)(received) (blame)(voteb))
+EOSIO_DISPATCH(reporting, (init) (enrol)(updatepk) (report)(approve)(vote) (transfer)(buy)(received) (blame)(voteb))

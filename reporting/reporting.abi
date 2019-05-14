@@ -94,6 +94,10 @@
                 {
                     "name": "user",
                     "type": "name"
+                },
+                {
+                    "name": "publicKey",
+                    "type": "string"
                 }
             ]
         },
@@ -233,6 +237,20 @@
             ]
         },
         {
+            "name": "updatepk",
+            "base": "",
+            "fields": [
+                {
+                    "name": "user",
+                    "type": "name"
+                },
+                {
+                    "name": "publicKey",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "user",
             "base": "",
             "fields": [
@@ -263,6 +281,10 @@
                 {
                     "name": "frozen",
                     "type": "bool"
+                },
+                {
+                    "name": "publicKey",
+                    "type": "string"
                 }
             ]
         },
@@ -386,6 +408,11 @@
         {
             "name": "transfer",
             "type": "transfer",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "updatepk",
+            "type": "updatepk",
             "ricardian_contract": ""
         },
         {
