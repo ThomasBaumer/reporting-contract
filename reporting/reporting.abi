@@ -4,6 +4,46 @@
     "types": [],
     "structs": [
         {
+            "name": "application",
+            "base": "",
+            "fields": [
+                {
+                    "name": "key",
+                    "type": "uint64"
+                },
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "applicant",
+                    "type": "name"
+                },
+                {
+                    "name": "active",
+                    "type": "bool"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "time_point"
+                }
+            ]
+        },
+        {
+            "name": "apply",
+            "base": "",
+            "fields": [
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "applicant",
+                    "type": "name"
+                }
+            ]
+        },
+        {
             "name": "approve",
             "base": "",
             "fields": [
@@ -135,8 +175,20 @@
                     "type": "bool"
                 },
                 {
+                    "name": "appliable",
+                    "type": "bool"
+                },
+                {
+                    "name": "setvoters",
+                    "type": "bool"
+                },
+                {
                     "name": "approval",
                     "type": "bool"
+                },
+                {
+                    "name": "applications",
+                    "type": "uint64"
                 },
                 {
                     "name": "confirmations",
@@ -148,6 +200,14 @@
                 },
                 {
                     "name": "rating",
+                    "type": "uint64"
+                },
+                {
+                    "name": "price",
+                    "type": "uint64"
+                },
+                {
+                    "name": "reward",
                     "type": "uint64"
                 }
             ]
@@ -171,6 +231,10 @@
                 {
                     "name": "buyer",
                     "type": "name"
+                },
+                {
+                    "name": "sent",
+                    "type": "bool"
                 },
                 {
                     "name": "received",
@@ -215,6 +279,46 @@
                 {
                     "name": "isIncident",
                     "type": "bool"
+                },
+                {
+                    "name": "price",
+                    "type": "uint64"
+                },
+                {
+                    "name": "reward",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "selectvoter",
+            "base": "",
+            "fields": [
+                {
+                    "name": "reporter",
+                    "type": "name"
+                },
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "nonce",
+                    "type": "uint64"
+                }
+            ]
+        },
+        {
+            "name": "sent",
+            "base": "",
+            "fields": [
+                {
+                    "name": "seller",
+                    "type": "name"
+                },
+                {
+                    "name": "orderKey",
+                    "type": "uint64"
                 }
             ]
         },
@@ -247,6 +351,24 @@
                 {
                     "name": "publicKey",
                     "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "updateprice",
+            "base": "",
+            "fields": [
+                {
+                    "name": "reporter",
+                    "type": "name"
+                },
+                {
+                    "name": "itemKey",
+                    "type": "uint64"
+                },
+                {
+                    "name": "price",
+                    "type": "uint64"
                 }
             ]
         },
@@ -301,7 +423,19 @@
                     "type": "name"
                 },
                 {
-                    "name": "merit",
+                    "name": "overall",
+                    "type": "uint64"
+                },
+                {
+                    "name": "description",
+                    "type": "uint64"
+                },
+                {
+                    "name": "service",
+                    "type": "uint64"
+                },
+                {
+                    "name": "quality",
                     "type": "uint64"
                 }
             ]
@@ -371,6 +505,11 @@
     ],
     "actions": [
         {
+            "name": "apply",
+            "type": "apply",
+            "ricardian_contract": ""
+        },
+        {
             "name": "approve",
             "type": "approve",
             "ricardian_contract": ""
@@ -406,6 +545,16 @@
             "ricardian_contract": ""
         },
         {
+            "name": "selectvoter",
+            "type": "selectvoter",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "sent",
+            "type": "sent",
+            "ricardian_contract": ""
+        },
+        {
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
@@ -413,6 +562,11 @@
         {
             "name": "updatepk",
             "type": "updatepk",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "updateprice",
+            "type": "updateprice",
             "ricardian_contract": ""
         },
         {
@@ -427,6 +581,13 @@
         }
     ],
     "tables": [
+        {
+            "name": "application",
+            "type": "application",
+            "index_type": "i64",
+            "key_names": [],
+            "key_types": []
+        },
         {
             "name": "blaming",
             "type": "blaming",

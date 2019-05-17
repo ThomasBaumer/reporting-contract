@@ -1,5 +1,7 @@
 #include <eosio/eosio.hpp>
 #include <eosio/crypto.hpp>
+#include <eosio/time.hpp>
+#include <eosio/system.hpp>
 
 using namespace eosio;
 
@@ -11,28 +13,35 @@ CONTRACT reporting : public contract {
     ACTION init();
     ACTION enrol(name user, std::string publicKey);
     ACTION updatepk(name user, std::string publicKey);
-    ACTION report(name reporter, std::string data, uint64_t parentLink, bool isIncident);
+    ACTION report(name reporter, std::string data, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward);
+    ACTION updateprice(name reporter, uint64_t itemKey, uint64_t price);
     ACTION approve(uint64_t key);
-    ACTION vote(uint64_t itemKey, name voter, uint64_t merit);
+    ACTION apply(uint64_t itemKey, name applicant);
+    ACTION selectvoter(name reporter, uint64_t itemKey, uint64_t nonce);
+    ACTION vote(uint64_t itemKey, name voter, uint64_t overall, uint64_t description, uint64_t service, uint64_t quality);
     ACTION transfer(name from, name to, uint64_t amount);
     ACTION blame(name blamer, name blamed, std::string reason, bool freeze);
     ACTION voteb(uint64_t blameKey, name voter, bool value);
     ACTION buy(name buyer, uint64_t itemKey);
     ACTION received(name buyer, uint64_t orderKey, bool done);
+    ACTION sent(name seller, uint64_t orderKey);
   
   private:
   
     void appoint(name user);
     void blameintern(name blamer, name blamed, std::string reason, bool freeze);
+    uint64_t random(uint64_t seed, uint64_t a, uint64_t b);
 	  
 	  bool initialized = false;
 	  
     uint64_t statusThreshold = 10;
-	  uint64_t voteThreshold = 2;
+    
+    uint64_t applicationThreshold = 5;
+	  uint64_t voteThreshold = 3;
+	  uint64_t minConfirmations = 2;
+	  
 	  uint64_t blameThreshold = 1;
-	  uint64_t minConfirmations = 1;
 	  uint64_t minConfirmationsBlame = 2;
-	  uint64_t conversionFactor = 10;
     
     TABLE user {
   		name			    user;
@@ -54,16 +63,32 @@ CONTRACT reporting : public contract {
       checksum256   hash;
   		bool			    incident;
   		bool			    voteable;
+  		bool          appliable;
+  		bool          setvoters;
   		bool 			    approval;
+  		uint64_t      applications;
   		uint64_t 		  confirmations;
   		uint64_t 		  votes;
   		uint64_t		  rating;
+  		uint64_t      price;
+  		uint64_t      reward;
   		uint64_t      primary_key() const { return key; }
   		checksum256   by_hash() const { return hash; }
 	  };
 	  typedef eosio::multi_index<"item"_n, item, eosio::indexed_by<"hash"_n, eosio::const_mem_fun<item, checksum256, &item::by_hash>>> item_t;
-	  //typedef eosio::multi_index<"item"_n, item> item_t;
 	  
+	  TABLE application {
+  		uint64_t 		      key;
+  		uint64_t		      itemKey;
+  		name			        applicant;
+  		bool              active;
+  		eosio::time_point	timestamp;
+		  uint64_t          primary_key() const { return key; }
+		  uint64_t          by_itemKey() const { return itemKey; }
+	  };
+	  typedef eosio::multi_index<"application"_n, application, eosio::indexed_by<"itemkey"_n, eosio::const_mem_fun<application, uint64_t, &application::by_itemKey>>> application_t;	
+//	  typedef eosio::multi_index<"application"_n, application> application_t;	  
+
 	  TABLE voting {
   		uint64_t 		  key;
   		uint64_t		  itemKey;
@@ -100,10 +125,11 @@ CONTRACT reporting : public contract {
   		uint64_t	    itemKey;
   		name          seller;
   		name			    buyer;
+  		bool          sent;
   		bool			    received;
   		uint64_t      primary_key() const { return key; }
   	};
   	typedef eosio::multi_index<"order"_n, order> order_t;
 };
 
-EOSIO_DISPATCH(reporting, (init) (enrol)(updatepk) (report)(approve)(vote) (transfer)(buy)(received) (blame)(voteb))
+EOSIO_DISPATCH(reporting, (init) (enrol)(updatepk) (report)(updateprice)(approve)(apply)(selectvoter)(vote) (transfer)(buy)(sent)(received) (blame)(voteb))
