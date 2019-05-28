@@ -13,7 +13,7 @@ CONTRACT reporting : public contract {
     ACTION init();
     ACTION enrol(name user, std::string publicKey);
     ACTION updatepk(name user, std::string publicKey);
-    ACTION report(name reporter, std::string data, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward);
+    ACTION report(name reporter, checksum256 hash, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward);
     ACTION updateprice(name reporter, uint64_t itemKey, uint64_t price);
     ACTION approve(uint64_t key);
     ACTION apply(uint64_t itemKey, name applicant);
@@ -87,7 +87,6 @@ CONTRACT reporting : public contract {
 		  uint64_t          by_itemKey() const { return itemKey; }
 	  };
 	  typedef eosio::multi_index<"application"_n, application, eosio::indexed_by<"itemkey"_n, eosio::const_mem_fun<application, uint64_t, &application::by_itemKey>>> application_t;	
-//	  typedef eosio::multi_index<"application"_n, application> application_t;	  
 
 	  TABLE voting {
   		uint64_t 		  key;

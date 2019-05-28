@@ -35,7 +35,7 @@ ACTION reporting::init() {
       row.publicKey =	"-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA3CPIoTuHlhcVmmAaDPa2\n+j/sxUlwvszLN4zSFVsOb8n5O31lIAOZosNlZwvGvUFEFLDw9XHbchfxDaROpfmD\nkbaT7ePHmIZPNRduC76c5fD4h7mUA7aww/f4Wou3kfedX/gRIQiUc40rbBiwDbdl\ne24b/mQ1mnHTKPbJNuyBCEm0gB9ln7cY7gJIdPjTS9i9bcEIh0XqkQA0HQdhNFJn\nKMGZxYOY+RQ9BHxrai7Hp2FNlnOCzi/DAoPWIQWpo7NdIQDGs3aPdtWqUKLIGA3h\n5e9TfaF4/KrCvbSgLB+SiWBOJPyec1XLVIiCW99jUUHWgkPXRZz0+sRfZQ5LIfZT\nsOSZmFMAYTf1U7rTLGS26o8tKNwlS116Xxj/Raag6rpfN6fCxH/DjFXSn0wgyIAY\nNcUb3WT5bstJm4/mEgW1IKug8cTJ99JAo50yqQOurxLxeVarAwwMLWeO/pu2UGrd\n7g6skje1urd9XPrZpNLfy/6DJPGpIwsMGCprljrLpNHC01XTLPkDsbp+vMFr2DeK\n/FNfiNEZxD4yTYiSAd22Bl3CqYlotYXh05pptZUkR4dQB0VDcb60S24BRhQHvAzf\nJxupb6j42elqRU++WyDmn+LIQeNRyUJEE2KgV3EIG8YFV7WXSc2w6Rw3oEd0IHFF\nLYGkfMMPCg3nbxfHElcv388CAwEAAQ==\n-----END PUBLIC KEY-----\n";
 		});
 		users.emplace(_self, [&]( auto& row ) { 
-		  row.user = "bsi"_n; 
+		  row.user = "nsa"_n; 
 		  row.balance = 10;
 		  row.statusR = 10; 
 		  row.statusV = 0; 
@@ -116,7 +116,7 @@ void reporting::appoint(name user) {
 
 
 
-ACTION reporting::report(name reporter, std::string data, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward) {
+ACTION reporting::report(name reporter, checksum256 hash, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward) {
 	require_auth( reporter );
 	user_t users( _self, _self.value );
 	auto it_reporter = users.find(reporter.value);
@@ -127,11 +127,6 @@ ACTION reporting::report(name reporter, std::string data, uint64_t parentLink, b
 	users.modify(it_reporter, _self, [&]( auto& row ) { 
 	  row.balance = row.balance - reward * voteThreshold; 
 	});
-	
-	char cdata[data.size() + 1];
-	std::copy(data.begin(), data.end(), cdata);
-	cdata[data.size()] = '\0';
-	checksum256 hash = eosio::sha256(cdata, data.size());
 
 	item_t item( _self, _self.value );
 	for(auto& row : item) { 
@@ -425,7 +420,7 @@ ACTION reporting::buy( name buyer, uint64_t itemKey ) {
 	check( !(it_item->appliable), "Application for this item is not yet done." );
 	check( !(it_item->voteable), "Voting for this item is not yet done." );
 	check( !(it_item->reporter == buyer), "You cannot buy for your own item." );
-	check( !(it_item->rating == 0), "This item does not meet quality requirements to be sold." );
+	check( !(it_item->rating/1000000000 == 0), "This item does not meet quality requirements to be sold." );
 	
 	name seller = it_item->reporter;
 	uint64_t price = it_item->price;
@@ -561,7 +556,12 @@ ACTION reporting::voteb(uint64_t blameKey, name voter, bool value) {
   	});
   	
   	if (it_blamed->blames >= blameThreshold) { 
+  	  auto it_blamer = users.find(it_blaming->blamer.value);
+  	  users.modify(it_blamer, _self, [&]( auto& row ) { 
+  	    row.balance = row.balance + it_blamed->balance;
+  	  }); 
   	  users.modify(it_blamed, _self, [&]( auto& row ) { 
+  	    row.balance = 0;
   	    row.frozen = it_blaming->freeze; 
   	  }); 
   	}

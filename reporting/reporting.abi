@@ -269,8 +269,8 @@
                     "type": "name"
                 },
                 {
-                    "name": "data",
-                    "type": "string"
+                    "name": "hash",
+                    "type": "checksum256"
                 },
                 {
                     "name": "parentLink",
