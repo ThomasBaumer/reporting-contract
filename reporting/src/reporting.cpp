@@ -497,7 +497,9 @@ ACTION reporting::blame(name blamer, name blamed, std::string reason, bool freez
 	user_t users( _self, _self.value );
 	auto it_blamer = users.find(blamer.value);
 	check( !(it_blamer == users.end()) , "Please enrol first." );
-	check( !(it_blamer->frozen) , "Your account is frozen." );
+	if(freeze) { check( !(it_blamer->frozen) , "Your account is frozen." ); }
+	
+	check(reason.length() < 128, "Less than 128 characters allowed.");
 	
 	auto it_blamed = users.find(blamed.value);
 	check( !(it_blamed == users.end()) , "Blamed user not enrolled." );
@@ -536,7 +538,7 @@ ACTION reporting::voteb(uint64_t blameKey, name voter, bool value) {
 	  check( !( row.blameKey == blameKey && row.voter == voter ), "You already voted for that item." );
 	}	
 	
-	bool isVoteable = 1; if (it_blaming->votes + 1 >= voteThreshold) { isVoteable = 0; }
+	bool isVoteable = 1; if (it_blaming->votes + 1 >= voteThresholdBlame) { isVoteable = 0; }
 	
 	votingb.emplace(_self, [&]( auto& row ) { 
 	  row.key = votingb.available_primary_key(); 

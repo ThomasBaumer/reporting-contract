@@ -41,6 +41,7 @@ CONTRACT reporting : public contract {
 	  uint64_t minConfirmations = 2;
 	  
 	  uint64_t blameThreshold = 1;
+	  uint64_t voteThresholdBlame = 5;
 	  uint64_t minConfirmationsBlame = 2;
     
     TABLE user {
