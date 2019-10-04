@@ -1,5 +1,27 @@
 #include <reporting.hpp>
 
+
+/**
+ *              ___             _ __                    _        _              __ _             ___                     _                               _     
+ *      o O O  | _ \    ___    | '_ \   ___      _ _   | |_     (_)    _ _     / _` |    o O O  / __|    ___    _ _     | |_      _ _   __ _     __     | |_   
+ *     o       |   /   / -_)   | .__/  / _ \    | '_|  |  _|    | |   | ' \    \__, |   o      | (__    / _ \  | ' \    |  _|    | '_| / _` |   / _|    |  _|  
+ *    TS__[O]  |_|_\   \___|   |_|__   \___/   _|_|_   _\__|   _|_|_  |_||_|   |___/   TS__[O]  \___|   \___/  |_||_|   _\__|   _|_|_  \__,_|   \__|_   _\__|  
+ *   {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| 
+ *  ./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
+ * 
+ *  by Thomas Baumer - 2019
+ *  thomas.baumer@stud.uni-regensburg.de
+ */
+
+
+
+
+/**
+ * Set some test users with various permissions. 
+ * These users hold the total supply of token of the smart contract.
+ * The publicKey is the same for all users to allow easy switching between the users (pretty useful for development).
+ * This method has to change for a more productive deployment.
+ */
 ACTION reporting::init() {
 		require_auth( _self );
 		check ( !(initialized), "Initialization already done.");
@@ -81,7 +103,11 @@ ACTION reporting::init() {
 
 
 
-
+/**
+ * Register new users which are not intially set by the init() method.
+ * The user is not frozen and is no verificator. His balance is 0.
+ * However, the user has to his publicKey.
+ */
 ACTION reporting::enrol(name user, std::string publicKey) {
   require_auth(user);
   user_t users( _self, _self.value );
@@ -98,6 +124,9 @@ ACTION reporting::enrol(name user, std::string publicKey) {
 	  row.publicKey = publicKey;
 	});
 }
+/**
+ * Method for updating the publicKey of an user. Nothing special to expect.
+ */
 ACTION reporting::updatepk(name user, std::string publicKey) {
   require_auth(user);
   user_t users( _self, _self.value );
@@ -108,7 +137,11 @@ ACTION reporting::updatepk(name user, std::string publicKey) {
 	  row.publicKey = publicKey;
 	});
 }
-
+/**
+ * Private Method for appoint a user to grant him the verificator permission. 
+ * This Method is called by another method. 
+ * The user has to have earned enough status points by reporting data to the Incident Reporting Plattform.
+ */
 void reporting::appoint(name user) {
 	user_t users( _self, _self.value );
 	auto iterator = users.find(user.value);
@@ -125,7 +158,11 @@ void reporting::appoint(name user) {
 
 
 
-
+/**
+ * Somewhat the core of the smart contract.
+ * With this method the user submits a hash of his threat intelligence data and some additional metadata.
+ * If the reward is set the user has to pay it by this method. 
+ */
 ACTION reporting::report(name reporter, checksum256 hash, uint64_t parentLink, bool isIncident, uint64_t price, uint64_t reward) {
 	require_auth( reporter );
 	user_t users( _self, _self.value );
@@ -160,7 +197,10 @@ ACTION reporting::report(name reporter, checksum256 hash, uint64_t parentLink, b
 	  row.reward = reward * voteThreshold;
 	});
 }
-
+/**
+ * Allows the user to update the price for the threat intelligence data.
+ * Nothing special to expect.
+ */
 ACTION reporting::updateprice(name reporter, uint64_t itemKey, uint64_t price) {
   require_auth( reporter );
 	user_t users( _self, _self.value );
@@ -176,7 +216,11 @@ ACTION reporting::updateprice(name reporter, uint64_t itemKey, uint64_t price) {
 	  row.price = price;
 	});
 }
-
+/**
+ * This method may be used by the user "bsi" to approve the threat intelligence data.
+ * With this method the bsi confirms the execution of the legal duty of the incident reporter. 
+ * Additionally this is a sign for the validy fo the threat intelligence data.
+ */
 ACTION reporting::approve(uint64_t key) {
 		require_auth( "bsi"_n );
 		item_t item( _self, _self.value );
@@ -190,7 +234,11 @@ ACTION reporting::approve(uint64_t key) {
 
 
 
-
+/**
+ * Manages the application of an user to vote for the threat intelligence data.
+ * The last applications closes the threat intelligence data for further applications.
+ * Therefore the setvoters method can be called afterwards.
+ */
 ACTION reporting::apply(uint64_t itemKey, name applicant) {
   require_auth( applicant );
 	user_t users( _self, _self.value );
@@ -227,7 +275,11 @@ ACTION reporting::apply(uint64_t itemKey, name applicant) {
   	});
 	}
 }
-
+/**
+ * This method selects in a pseudo-"random" way the voters for the quality assessment of the smart contract.
+ * To do this it collects the active applications, assignes a "random" number to the entry and sorts the applications regarding to the number.
+ * Afterwards 3 applications are selected and become active.
+ */
 ACTION reporting::selectvoter(name reporter, uint64_t itemKey, uint64_t nonce) {
   require_auth( reporter );
 	user_t users( _self, _self.value );
@@ -302,7 +354,9 @@ ACTION reporting::selectvoter(name reporter, uint64_t itemKey, uint64_t nonce) {
   });
 	
 }
-
+/**
+ * A helper method to generate a random number. The algorithm is a simple linear congruential generator (lcg).
+ */
 uint64_t reporting::random(uint64_t seed, uint64_t a, uint64_t b) {
   uint64_t m = 1337;
   uint64_t y = seed % (m - 1);
@@ -312,6 +366,15 @@ uint64_t reporting::random(uint64_t seed, uint64_t a, uint64_t b) {
   return (a * y + b) % m;
 }
 
+/**
+ * Besides the report() method is this method the second core method.
+ * After the the voters are selected these call this method to submit their assessment of the threat intelligence data. 
+ * The assessment is done by the arguments overall, description, service and quality in the range [0; 99].
+ * The voter is rewarded by a status point for his voting and an optional reward in token (if it was set from the reporter by the report() Method with the argument price)
+ * The reporter gets his reward if the quality of the threat intelligence data was sufficient. Additionally the reporter earns for a positive rating a status point for reporting. 
+ * If enough status points for reporting are earned the reporter gets the verifcation permission granted.
+ * The last vote closes the assessment of the threat intelligence data and cleans up.
+ */
 ACTION reporting::vote(uint64_t itemKey, name voter, uint64_t overall, uint64_t description, uint64_t service, uint64_t quality) {
 	require_auth( voter );
 	user_t users( _self, _self.value );
@@ -397,7 +460,9 @@ ACTION reporting::vote(uint64_t itemKey, name voter, uint64_t overall, uint64_t 
 
 
 
-
+/**
+ * A method to allow transfers of token between the users. E.g. for exchanging money and token. 
+ */
 ACTION reporting::transfer(name from, name to, uint64_t amount) {
 	require_auth( from );
 	user_t users( _self, _self.value ); 
@@ -417,6 +482,10 @@ ACTION reporting::transfer(name from, name to, uint64_t amount) {
 	users.modify(it_to, _self, [&]( auto& row ) { row.balance = row.balance + amount; });
 }
 
+/**
+ * Method to buy threat intelligence data from another user (the data has to have a positive overall rating).
+ * To place the order the token have to be transfered by this method.
+ */
 ACTION reporting::buy( name buyer, uint64_t itemKey ) {
 	require_auth( buyer );
 	user_t users( _self, _self.value );
@@ -451,7 +520,10 @@ ACTION reporting::buy( name buyer, uint64_t itemKey ) {
 	  reporting::transfer(buyer, seller, price);
 	}
 }
-
+/**
+ * This method markes an order as received by the buyer.
+ * If done is set false a blame will be triggered.
+ */
 ACTION reporting::received( name buyer, uint64_t orderKey, bool done ) {
 	require_auth( buyer );
 	user_t users( _self, _self.value );
@@ -474,6 +546,10 @@ ACTION reporting::received( name buyer, uint64_t orderKey, bool done ) {
 	  reporting::blameintern(buyer, it_order->seller, reason, 1);
 	}
 }
+/**
+ * This method markes an order as sent by the seller.
+ * Nothing special to expect.
+ */
 ACTION reporting::sent( name seller, uint64_t orderKey ) {
 	require_auth( seller );
 	user_t users( _self, _self.value );
@@ -501,7 +577,11 @@ ACTION reporting::sent( name seller, uint64_t orderKey ) {
 
 
 
-
+/**
+ * This method allows to complain about a behaviour of another user.
+ * The reason is passed by and 128 char string. 
+ * The freeze argument has to be true to freeze and false to unfreeze an user.
+ */
 ACTION reporting::blame(name blamer, name blamed, std::string reason, bool freeze) {
 	require_auth( blamer );
 	user_t users( _self, _self.value );
@@ -516,7 +596,9 @@ ACTION reporting::blame(name blamer, name blamed, std::string reason, bool freez
 	
 	reporting::blameintern(blamer, blamed, reason, freeze);
 }
-
+/**
+ * This method sets up the blame (internal).
+ */
 void reporting::blameintern(name blamer, name blamed, std::string reason, bool freeze) {
   blaming_t blaming( _self, _self.value );
 	blaming.emplace( _self, [&]( auto& row ) { 
@@ -530,7 +612,11 @@ void reporting::blameintern(name blamer, name blamed, std::string reason, bool f
 	  row.votes = 0; 
 	});
 }
-
+/**
+ * This method allows to vote for a blaming.
+ * If the blame is confirmed, the numbers of blames raises. 
+ * Additionally, if enough blames are confirmed the user gets frozen for most of the methods of the smart contract and get stripped off his token.
+ */
 ACTION reporting::voteb(uint64_t blameKey, name voter, bool value) {
 	require_auth( voter );
 	user_t users( _self, _self.value );

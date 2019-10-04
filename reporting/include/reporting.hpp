@@ -3,13 +3,31 @@
 #include <eosio/time.hpp>
 #include <eosio/system.hpp>
 
+//things are more readable with this namespace
 using namespace eosio;
+
+
+/**
+ *              ___             _ __                    _        _              __ _             ___                     _                               _     
+ *      o O O  | _ \    ___    | '_ \   ___      _ _   | |_     (_)    _ _     / _` |    o O O  / __|    ___    _ _     | |_      _ _   __ _     __     | |_   
+ *     o       |   /   / -_)   | .__/  / _ \    | '_|  |  _|    | |   | ' \    \__, |   o      | (__    / _ \  | ' \    |  _|    | '_| / _` |   / _|    |  _|  
+ *    TS__[O]  |_|_\   \___|   |_|__   \___/   _|_|_   _\__|   _|_|_  |_||_|   |___/   TS__[O]  \___|   \___/  |_||_|   _\__|   _|_|_  \__,_|   \__|_   _\__|  
+ *   {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| {======|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""|_|"""""| 
+ *  ./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'./o--000'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-'"`-0-0-' 
+ * 
+ *  by Thomas Baumer - 2019
+ *  thomas.baumer@stud.uni-regensburg.de
+ */
+
+
 
 CONTRACT reporting : public contract {
   public:
     using contract::contract;
     reporting(eosio::name receiver, eosio::name code, datastream<const char*> ds):contract(receiver, code, ds) {}
   
+    //Actios: Used by calling the smart contract in order to modify the state. See master thesis for a easier description.
+    //You could name this an API. :)
     ACTION init();
     ACTION enrol(name user, std::string publicKey);
     ACTION updatepk(name user, std::string publicKey);
@@ -28,12 +46,15 @@ CONTRACT reporting : public contract {
   
   private:
   
+    //private Methods which are only called internal by the smart contract
     void appoint(name user);
     void blameintern(name blamer, name blamed, std::string reason, bool freeze);
     uint64_t random(uint64_t seed, uint64_t a, uint64_t b);
 	  
+	  //a boolean for the init() method
 	  bool initialized = false;
 	  
+	  //parameters: These parameters can be altered (or should be considered to) by anyone who deploys this smart contract
     uint64_t statusThreshold = 10;
     
     uint64_t applicationThreshold = 5;
@@ -43,7 +64,8 @@ CONTRACT reporting : public contract {
 	  uint64_t blameThreshold = 1;
 	  uint64_t voteThresholdBlame = 5;
 	  uint64_t minConfirmationsBlame = 2;
-    
+	  
+	  //tables: These lines describe the tables/datamodel of the smart contract. This is where the smart contract persists its data.
     TABLE user {
   		name			    user;
   		uint64_t		  balance;
@@ -132,4 +154,5 @@ CONTRACT reporting : public contract {
   	typedef eosio::multi_index<"order"_n, order> order_t;
 };
 
+//every ACTION has to be mentioned here to be called from outside of the smart contract
 EOSIO_DISPATCH(reporting, (init) (enrol)(updatepk) (report)(updateprice)(approve)(apply)(selectvoter)(vote) (transfer)(buy)(sent)(received) (blame)(voteb))
